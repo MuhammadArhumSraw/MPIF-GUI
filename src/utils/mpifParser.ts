@@ -157,6 +157,18 @@ export class MPIFParser {
       result += '\n';
     }
 
+    // Catalysts
+    if (data.synthesisDetails.catalysts?.length > 0) {
+      result += `_mpif_catalyst_number\t${data.synthesisDetails.catalysts.length}\n`;
+      result += 'loop_\n';
+      result += '_mpif_catalyst_id\n_mpif_catalyst_name\n_mpif_catalyst_amount\n_mpif_catalyst_unit\n_mpif_catalyst_supplier\n_mpif_catalyst_purity_percent\n_mpif_catalyst_cas\n_mpif_catalyst_smiles\n_mpif_catalyst_note\n';
+
+      data.synthesisDetails.catalysts.forEach((catalyst, index) => {
+        result += `${this.sequenceId('C', index)}\t${catalyst.name}\t${catalyst.amount}\t${catalyst.unit}\t${catalyst.supplier || ''}\t${catalyst.purity || ''}\t${catalyst.casNumber || ''}\t${catalyst.smiles || '?'}\t${catalyst.note || '-'}\n`;
+      });
+      result += '\n';
+    }
+
     // Vessels
     if (data.synthesisDetails.vessels.length > 0) {
       result += `_mpif_vessel_number\t${data.synthesisDetails.vessels.length}\n`;
@@ -417,6 +429,9 @@ export class MPIFParser {
       solvents: this.parseLoopData('solvent', [
         'id', 'name', 'molarity', 'molarityUnit', 'amount', 'amountUnit',
         'supplier', 'purity', 'casNumber', 'smiles'
+      ]),
+      catalysts: this.parseLoopData('catalyst', [
+        'id', 'name', 'amount', 'unit', 'supplier', 'purity', 'casNumber', 'smiles', 'note'
       ]),
       vessels: this.parseLoopData('vessel', [
         'id', 'volume', 'volumeUnit', 'material', 'type', 'supplier', 'purpose', 'note'

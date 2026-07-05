@@ -82,6 +82,7 @@ export interface SynthesisGeneral {
 export interface SynthesisDetails {
   substrates: Substrate[];
   solvents: Solvent[];
+  catalysts: Catalyst[];
   vessels: Vessel[];
   hardware: Hardware[];
   steps: ProcedureStep[];
@@ -112,6 +113,18 @@ export interface Solvent {
   purity?: number;
   casNumber?: string;
   smiles?: string;
+}
+
+export interface Catalyst {
+  id: string;
+  name: string;
+  amount: number | undefined;
+  unit: string;
+  supplier?: string;
+  purity?: number;
+  casNumber?: string;
+  smiles?: string;
+  note?: string;
 }
 
 export interface Vessel {

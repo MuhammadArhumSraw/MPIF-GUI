@@ -496,6 +496,75 @@ const mpifSections: MPIFSection[] = [
         note: 'Follows the same loop structure as substrates with _mpif_solvent_ prefix'
       },
       {
+        name: '_mpif_catalyst_number',
+        description: 'Number of catalysts used in the synthesis',
+        dataType: 'integer',
+        example: '1'
+      },
+      {
+        name: '_mpif_catalyst_id',
+        description: 'Identification code for each catalyst',
+        dataType: 'string (C1, C2, C3, ...)',
+        example: 'C1',
+        note: 'Part of loop structure'
+      },
+      {
+        name: '_mpif_catalyst_name',
+        description: 'Chemical name of the catalyst',
+        dataType: 'string',
+        example: 'Pd/C',
+        note: 'Part of loop structure'
+      },
+      {
+        name: '_mpif_catalyst_amount',
+        description: 'Amount of the catalyst used',
+        dataType: 'float',
+        example: '10',
+        note: 'Part of loop structure'
+      },
+      {
+        name: '_mpif_catalyst_unit',
+        description: 'Unit for catalyst amount',
+        dataType: 'string',
+        example: 'mg, wt%',
+        note: 'Part of loop structure'
+      },
+      {
+        name: '_mpif_catalyst_supplier',
+        description: 'Commercial supplier of the catalyst',
+        dataType: 'string',
+        example: 'Sigma-Aldrich',
+        note: 'Part of loop structure'
+      },
+      {
+        name: '_mpif_catalyst_purity_percent',
+        description: 'Purity of the catalyst as stated by supplier',
+        dataType: 'float',
+        example: '99',
+        note: 'Part of loop structure'
+      },
+      {
+        name: '_mpif_catalyst_cas',
+        description: 'CAS registry number of the catalyst',
+        dataType: 'string',
+        example: '7440-05-3',
+        note: 'Part of loop structure'
+      },
+      {
+        name: '_mpif_catalyst_smiles',
+        description: 'SMILES notation of the catalyst chemical structure',
+        dataType: 'string',
+        example: '?',
+        note: 'Part of loop structure. Used when catalyst cannot be uniquely identified by other information'
+      },
+      {
+        name: '_mpif_catalyst_note',
+        description: 'Additional notes about the catalyst',
+        dataType: 'string',
+        example: '5 mol% loading',
+        note: 'Part of loop structure'
+      },
+      {
         name: '_mpif_vessel_number',
         description: 'Number of vessels used in the synthesis',
         dataType: 'integer',

@@ -61,7 +61,7 @@ const IntroPage: React.FC<IntroPageProps> = ({ onCreate, onFileUpload, onLoadDra
       
       {/* GitHub Link */}
       <a
-        href="https://github.com/fengxuyy/MSIF-GUI"
+        href="https://github.com/MuhammadArhumSraw/MPIF-GUI"
         target="_blank"
         rel="noopener noreferrer"
         className="absolute top-6 right-6 z-10 p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 group"

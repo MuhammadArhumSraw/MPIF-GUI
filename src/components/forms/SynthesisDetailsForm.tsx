@@ -36,14 +36,16 @@ export function SynthesisDetailsForm({ data, onSave, onUnsavedChange, errors = [
     reset,
     watch,
   } = useForm<SynthesisDetails>({
-    defaultValues: data || {
-      substrates: [{ id: '1', name: '', amount: undefined, amountUnit: '' }],
-      solvents: [{ id: '1', name: '', amount: undefined, amountUnit: '' }],
-      vessels: [{ id: '1', volume: undefined, volumeUnit: '', material: '', type: '', purpose: '' }],
-      hardware: [{ id: '1', purpose: '', generalName: '' }],
-      steps: [{ id: '1', type: '', atmosphere: '', detail: '' }],
-      procedureFull: ''
-    }
+    defaultValues: {
+      ...data,
+      catalysts: data?.catalysts ?? [],
+      substrates: data?.substrates ?? [{ id: '1', name: '', amount: undefined, amountUnit: '' }],
+      solvents: data?.solvents ?? [{ id: '1', name: '', amount: undefined, amountUnit: '' }],
+      vessels: data?.vessels ?? [{ id: '1', volume: undefined, volumeUnit: '', material: '', type: '', purpose: '' }],
+      hardware: data?.hardware ?? [{ id: '1', purpose: '', generalName: '' }],
+      steps: data?.steps ?? [{ id: '1', type: '', atmosphere: '', detail: '' }],
+      procedureFull: data?.procedureFull ?? ''
+    } as SynthesisDetails
   });
 
   const { fields: substrateFields, append: appendSubstrate, remove: removeSubstrate } = useFieldArray({
@@ -54,6 +56,11 @@ export function SynthesisDetailsForm({ data, onSave, onUnsavedChange, errors = [
   const { fields: solventFields, append: appendSolvent, remove: removeSolvent } = useFieldArray({
     control,
     name: 'solvents'
+  });
+
+  const { fields: catalystFields, append: appendCatalyst, remove: removeCatalyst } = useFieldArray({
+    control,
+    name: 'catalysts'
   });
 
   const { fields: vesselFields, append: appendVessel, remove: removeVessel } = useFieldArray({
@@ -83,6 +90,7 @@ export function SynthesisDetailsForm({ data, onSave, onUnsavedChange, errors = [
     ...values,
     substrates: values.substrates.map((item, index) => ({ ...item, id: `R${index + 1}` })),
     solvents: values.solvents.map((item, index) => ({ ...item, id: `S${index + 1}` })),
+    catalysts: (values.catalysts ?? []).map((item, index) => ({ ...item, id: `C${index + 1}` })),
     vessels: values.vessels.map((item, index) => ({ ...item, id: `V${index + 1}` })),
     hardware: values.hardware.map((item, index) => ({ ...item, id: `H${index + 1}` })),
     steps: values.steps.map((item, index) => ({ ...item, id: `P${index + 1}` })),
@@ -104,7 +112,10 @@ export function SynthesisDetailsForm({ data, onSave, onUnsavedChange, errors = [
     const currentValues = getValues();
 
     if (!isEqual(currentValues, data) && !formHasFocus) {
-      reset(data);
+      reset({
+        ...data,
+        catalysts: data.catalysts ?? [],
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, reset, getValues, isEqual]);
@@ -430,6 +441,136 @@ export function SynthesisDetailsForm({ data, onSave, onUnsavedChange, errors = [
                     variant="outline"
                     size="sm"
                     onClick={() => removeSolvent(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Catalysts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Catalysts
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => appendCatalyst({ id: `C${catalystFields.length + 1}`, name: '', amount: undefined as any, unit: '' })}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Catalyst
+            </Button>
+          </CardTitle>
+          <CardDescription>
+            Catalysts used in the synthesis
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {catalystFields.map((field, index) => (
+            <div key={field.id} className="p-4 border rounded-lg space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label>ID</Label>
+                  <Input value={`C${index + 1}`} disabled />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`catalysts.${index}.name`}>Name *</Label>
+                  <Input
+                    {...register(`catalysts.${index}.name`, { required: 'Name is required' })}
+                    className={cn(hasValidationError(`catalysts[${index}].name`) && "border-red-500 ring-red-500")}
+                  />
+                  {formErrors.catalysts?.[index]?.name && (
+                    <p className="text-sm text-red-600">{formErrors.catalysts[index]?.name?.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`catalysts.${index}.amount`}>Amount *</Label>
+                  <Input
+                    type="number"
+                    step="0.001"
+                    {...register(`catalysts.${index}.amount`, {
+                      required: 'Amount is required',
+                      valueAsNumber: true,
+                      min: { value: 0, message: 'Amount must be positive' }
+                    })}
+                    className={cn(hasValidationError(`catalysts[${index}].amount`) && "border-red-500 ring-red-500")}
+                  />
+                  {formErrors.catalysts?.[index]?.amount && (
+                    <p className="text-sm text-red-600">{formErrors.catalysts[index]?.amount?.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`catalysts.${index}.unit`}>Unit *</Label>
+                  <Controller
+                    name={`catalysts.${index}.unit`}
+                    control={control}
+                    rules={{ required: 'Unit is required' }}
+                    render={({ field }) => (
+                      <EditableSelect
+                        {...field}
+                        options={['mg', 'g', 'kg', 'μL', 'mL', 'L', 'mol%', 'wt%']}
+                        className={cn(hasValidationError(`catalysts[${index}].unit`) && "border-red-500 ring-red-500")}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`catalysts.${index}.supplier`}>Supplier</Label>
+                  <Input
+                    {...register(`catalysts.${index}.supplier`)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`catalysts.${index}.purity`}>Purity (%)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    {...register(`catalysts.${index}.purity`, { valueAsNumber: true, min: { value: 0, message: '>= 0' }, max: { value: 100, message: '<= 100' } })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`catalysts.${index}.casNumber`}>CAS</Label>
+                  <Input
+                    {...register(`catalysts.${index}.casNumber`)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`catalysts.${index}.smiles`}>SMILES</Label>
+                  <Input
+                    {...register(`catalysts.${index}.smiles`)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2 md:col-span-3">
+                  <Label htmlFor={`catalysts.${index}.note`}>Note</Label>
+                  <Input
+                    {...register(`catalysts.${index}.note`)}
+                  />
+                </div>
+
+                <div className="flex items-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeCatalyst(index)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

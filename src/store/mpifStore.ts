@@ -106,6 +106,7 @@ const createDefaultMPIFData = (): MPIFData => ({
   synthesisDetails: {
     substrates: [],
     solvents: [],
+    catalysts: [],
     vessels: [],
     hardware: [],
     steps: [],
@@ -207,6 +208,33 @@ const validateMPIFData = (data: MPIFData): ValidationResult => {
     });
   }
 
+  // Validate synthesis details - catalysts
+  if (data.synthesisDetails?.catalysts) {
+    data.synthesisDetails.catalysts.forEach((catalyst, index) => {
+      if (!catalyst.name || catalyst.name.trim() === '') {
+        errors.push({
+          field: `catalysts[${index}].name`,
+          message: 'Catalyst name is required',
+          section: 'synthesisDetails'
+        });
+      }
+      if (catalyst.amount === undefined || catalyst.amount <= 0) {
+        errors.push({
+          field: `catalysts[${index}].amount`,
+          message: 'Catalyst amount is required and must be positive',
+          section: 'synthesisDetails'
+        });
+      }
+      if (!catalyst.unit || catalyst.unit.trim() === '') {
+        errors.push({
+          field: `catalysts[${index}].unit`,
+          message: 'Catalyst unit is required',
+          section: 'synthesisDetails'
+        });
+      }
+    });
+  }
+
   // Validate synthesis details - vessels
   if (data.synthesisDetails && data.synthesisDetails.vessels) {
     data.synthesisDetails.vessels.forEach((vessel, index) => {
@@ -273,6 +301,9 @@ export const useMPIFStore = create<MPIFStore>()(
       
       try {
         const data = parseMPIF(content);
+        if (!data.synthesisDetails.catalysts) {
+          data.synthesisDetails.catalysts = [];
+        }
         
         set({
           mpifData: data,

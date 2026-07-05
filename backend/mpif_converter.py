@@ -221,6 +221,36 @@ def json_to_mpif(json_data: Union[str, Dict[str, Any]]) -> str:
             result.append(line)
         result.append("")
     
+    # Catalysts
+    catalysts = details.get('catalysts', [])
+    if catalysts:
+        result.append(f"_mpif_catalyst_number\t{len(catalysts)}")
+        result.append("loop_")
+        result.append("_mpif_catalyst_id")
+        result.append("_mpif_catalyst_name")
+        result.append("_mpif_catalyst_amount")
+        result.append("_mpif_catalyst_unit")
+        result.append("_mpif_catalyst_supplier")
+        result.append("_mpif_catalyst_purity_percent")
+        result.append("_mpif_catalyst_cas")
+        result.append("_mpif_catalyst_smiles")
+        result.append("_mpif_catalyst_note")
+        
+        for cat in catalysts:
+            line = "\t".join([
+                str(cat.get('id', '')),
+                str(cat.get('name', '')),
+                str(cat.get('amount', '')),
+                str(cat.get('unit', '')),
+                str(cat.get('supplier', '')),
+                str(cat.get('purity', '')),
+                str(cat.get('casNumber', '')),
+                str(cat.get('smiles', '?')),
+                str(cat.get('note', '-'))
+            ])
+            result.append(line)
+        result.append("")
+    
     # Vessels
     vessels = details.get('vessels', [])
     if vessels:
@@ -860,6 +890,10 @@ def _parse_synthesis_details(lines: List[str]) -> Dict[str, Any]:
         'supplier', 'purity', 'casNumber', 'smiles'
     ])
     
+    details['catalysts'] = _parse_loop_data(lines, 'catalyst', [
+        'id', 'name', 'amount', 'unit', 'supplier', 'purity', 'casNumber', 'smiles', 'note'
+    ])
+    
     details['vessels'] = _parse_loop_data(lines, 'vessel', [
         'id', 'volume', 'volumeUnit', 'material', 'type', 'supplier', 'purpose', 'note'
     ])
@@ -1017,6 +1051,7 @@ def create_mpif_json(**kwargs) -> Dict[str, Any]:
         'synthesisDetails': {
             'substrates': [],
             'solvents': [],
+            'catalysts': [],
             'vessels': [],
             'hardware': [],
             'steps': [],
@@ -1108,6 +1143,7 @@ def create_mpif_json(**kwargs) -> Dict[str, Any]:
         # Synthesis details fields
         'substrates': 'synthesisDetails',
         'solvents': 'synthesisDetails',
+        'catalysts': 'synthesisDetails',
         'vessels': 'synthesisDetails',
         'hardware': 'synthesisDetails',
         'steps': 'synthesisDetails',
@@ -1148,6 +1184,11 @@ def create_mpif_json(**kwargs) -> Dict[str, Any]:
         for i, solvent in enumerate(data['synthesisDetails']['solvents']):
             if 'id' not in solvent or not solvent['id']:
                 solvent['id'] = f'S{i+1}'
+    
+    if data['synthesisDetails'].get('catalysts'):
+        for i, catalyst in enumerate(data['synthesisDetails']['catalysts']):
+            if 'id' not in catalyst or not catalyst['id']:
+                catalyst['id'] = f'C{i+1}'
     
     if data['synthesisDetails']['vessels']:
         for i, vessel in enumerate(data['synthesisDetails']['vessels']):
