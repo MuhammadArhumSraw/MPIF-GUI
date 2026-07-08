@@ -1,0 +1,7 @@
+services:
+  mpif-gui:
+    image: mpif-gui:latest
+    container_name: mpif-gui
+    ports:
+      - "8080:80"
+    restart: unless-stopped
